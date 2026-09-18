@@ -2,9 +2,6 @@
 
 The included demo is designed to be reviewable without private files, cloud services, or a deployed web app.
 
-![TrustDoc AI Desktop Prototype](assets/trustdoc-ui-prototype.jpg)
-*TrustDoc AI running the adversarial debate verifier on conflicting documents.*
-
 ## Scenario
 
 Two documents describe the same purchase order but disagree on one key field:
@@ -44,9 +41,6 @@ The demo creates local runtime artifacts that are intentionally git-ignored:
 
 - `trustdoc_ai/demo/output/report.json`: Comprehensive report containing all document metadata, extracted claims, full debate transcripts, and provider telemetry.
 - `trustdoc_ai/demo/trustdoc_demo.db`: SQLite database storing runs, documents, claims, transcripts, and per-inference `ep_indicator_log` records.
-
-![TrustDoc AI Audit Log Inspector](assets/trustdoc-audit-trail.jpg)
-*Audit trail inspector displaying SQLite persistence and transparent execution provider telemetry.*
 
 ## Why This Demo Matters
 

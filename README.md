@@ -16,13 +16,39 @@ TrustDoc AI is built for the Qualcomm Snapdragon AI Lab Build & Present Challeng
 
 ![TrustDoc AI architecture](docs/assets/trustdoc-ai-architecture.svg)
 
-## Desktop Prototype & Visual Walkthrough
+## Verifiable End-to-End Demo
 
-![TrustDoc AI Desktop Interface](docs/assets/trustdoc-ui-prototype.jpg)
-*TrustDoc AI Desktop Interface: Visualizing the adversarial debate arena over conflicting payment due dates between invoice and purchase order, featuring live Hexagon NPU indicators, confidence scoring, and human-in-the-loop review routing.*
+TrustDoc AI runs an end-to-end 7-stage verification pipeline entirely on-device. When checking cross-document consistency between an invoice (`Payment Due Date: 2026-10-15`) and a purchase order (`Payment Due Date: 2026-11-15`), the system extracts discrete claims, retrieves multi-document context, runs separate Prosecutor and Defender debate passes, and uses the on-device ONNX Judge model to evaluate the arguments and evidence.
 
-![TrustDoc AI Execution Provider & Audit Log](docs/assets/trustdoc-audit-trail.jpg)
-*Audit & Transparency Inspector: Real-time telemetry tracking per-inference execution providers (QNN/CPU), latency measurements, and SQLite cryptographic audit persistence.*
+```powershell
+python -m trustdoc_ai demo
+```
+
+Actual terminal output from the verified run:
+
+```text
+[TrustDoc AI] Hardware detected: arch='x64' platform='Windows' ort_version='1.29.0' qnn_ep_available=False qnn_htp_dll_path=None
+Run ID: run-bac80d41-62fb-4c6a-95da-8890bca3b1f8
+Report: trustdoc_ai/demo/output/report.json
+Audit DB: trustdoc_ai/demo/trustdoc_demo.db
+Provider: {'arch': 'x64', 'platform': 'Windows', 'ort_version': '1.29.0', 'qnn_ep_available': False, 'qnn_htp_dll_path': None, 'judge_model': 'nli-MiniLM2-L6-H768-ONNX', 'inference_note': 'Judge role executed on-device via ONNX Runtime (nli-MiniLM2-L6-H768-ONNX) with transparent EP logging.'}
+
+Verdicts:
+- SUPPORTED (0.78): Document Type is Invoice.
+  Judge: The ONNX Judge (nli-MiniLM2-L6-H768-ONNX) confirmed entailment: the defender identified matching evidence and the prosecutor found no conflict.
+- SUPPORTED (0.78): Vendor is Northstar Components.
+  Judge: The ONNX Judge (nli-MiniLM2-L6-H768-ONNX) confirmed entailment: the defender identified matching evidence and the prosecutor found no conflict.
+- SUPPORTED (0.78): Buyer is HP Prototype Lab.
+  Judge: The ONNX Judge (nli-MiniLM2-L6-H768-ONNX) confirmed entailment: the defender identified matching evidence and the prosecutor found no conflict.
+- CONTRADICTED (0.86): Payment Due Date is 2026-10-15.
+  Judge: The ONNX Judge (nli-MiniLM2-L6-H768-ONNX) verified cross-document contradiction: direct support in one document conflicts with a different value in another.
+- CONTRADICTED (0.86): Payment Due Date is 2026-11-15.
+  Judge: The ONNX Judge (nli-MiniLM2-L6-H768-ONNX) verified cross-document contradiction: direct support in one document conflicts with a different value in another.
+
+Human review items: 2
+```
+
+Audit trail records are persisted locally into `trustdoc_demo.db` using relational SQLite tables with timestamps, foreign keys, and per-inference execution-provider telemetry.
 
 ---
 
@@ -244,7 +270,7 @@ Recommended topics:
 snapdragon, qualcomm, hexagon-npu, onnx-runtime, qnn, on-device-ai, hallucination-detection, document-verification
 ```
 
-Social preview image: `docs/assets/trustdoc-ui-prototype.jpg` or `docs/assets/trustdoc-ai-architecture.svg`.
+Social preview image: `docs/assets/trustdoc-ai-architecture.svg`.
 
 ### License
 
