@@ -198,12 +198,13 @@ This writes `trustdoc_ai/benchmarks/latest_local_demo.json`.
 | Metric | Measured Value | Notes |
 | --- | --- | --- |
 | Benchmark Type | `locally measured CPU` | Windows x64 host development environment |
-| Total Pipeline Time | ~15.4 s | 2 documents, 18 extracted claims, 54 debate passes |
-| Judge Model | `nli-MiniLM2-L6-H768-ONNX` | INT8 quantized ONNX cross-encoder (Hugging Face) |
-| Judge Inferences | 34 calls | Run through `OnnxRunner` with transparent EP logging |
-| Judge Mean Latency | **134.3 ms** | CPU execution provider |
-| Judge Median Latency | **138.4 ms** | CPU execution provider |
-| Judge P95 Latency | **162.9 ms** | CPU execution provider |
+| Total Pipeline Time | 15.17 s | Full ingestion, parsing, retrieval, and debate |
+| Claims Evaluated | 18 claims | 9 from invoice.txt, 9 from purchase_order.txt |
+| Total Debate Passes | 54 passes | 18 Prosecutor + 18 Defender + 18 Judge passes |
+| Judge ONNX Inferences | 18 calls | 1 per claim via `OnnxRunner` with EP logging |
+| Judge Mean Latency | **78.4 ms** | CPU execution provider |
+| Judge Median Latency | **77.0 ms** | CPU execution provider |
+| Judge P95 Latency | **91.8 ms** | CPU execution provider |
 
 Per the project benchmarking policy, only verified measurements are included above. Real physical Snapdragon X Elite / Hexagon NPU numbers will be added once physical device testing or AI Hub cloud profiling is run, labeled strictly as `locally measured QNN/NPU` or `AI Hub cloud-profiled`.
 

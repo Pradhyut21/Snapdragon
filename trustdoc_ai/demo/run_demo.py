@@ -29,6 +29,7 @@ def main() -> None:
         print(f"  Judge: {verification['judge_rationale']}")
     if result.hitl_queue:
         print(f"\nHuman review items: {len(result.hitl_queue)}")
+    return result
 
 
 if __name__ == "__main__":

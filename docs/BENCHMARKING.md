@@ -20,15 +20,16 @@ trustdoc_ai/benchmarks/latest_local_demo.json
 
 - **Benchmark Type**: `locally measured CPU`
 - **Host Environment**: Windows 11 x64, Python 3.13, ONNX Runtime 1.29.0
-- **Total Pipeline Time**: ~15.4 s (2 documents, 18 extracted claims, 54 debate passes)
-- **Judge Model**: `nli-MiniLM2-L6-H768-ONNX` (INT8 quantized ONNX cross-encoder)
-- **Inference Sample Count**: 34 calls
+- **Total Pipeline Time**: 15.17 s (Full ingestion, parsing, retrieval, and 54 debate passes)
+- **Claims Evaluated**: 18 claims (9 from invoice.txt, 9 from purchase_order.txt)
+- **Total Debate Passes**: 54 passes (18 Prosecutor + 18 Defender + 18 Judge passes)
+- **Judge ONNX Inferences**: 18 calls (1 per claim via `OnnxRunner` with EP logging)
 - **Judge Latency Statistics**:
-  - Mean: **134.31 ms**
-  - Median: **138.37 ms**
-  - Min: **98.09 ms**
-  - Max: **166.91 ms**
-  - P95: **162.97 ms**
+  - Mean: **78.44 ms**
+  - Median: **76.96 ms**
+  - Min: **60.64 ms**
+  - Max: **98.65 ms**
+  - P95: **91.80 ms**
 
 In accordance with this policy, no speculative numbers are published in the results. Real NPU figures will be added upon physical hardware testing or AI Hub cloud profiling.
 
