@@ -14,6 +14,7 @@ htmlcov/
 *.db
 *.db-wal
 *.db-shm
+*.zip
 trustdoc_ai/demo/output/
 trustdoc_ai/benchmarks/latest_local_demo.json
 trustdoc_ai/models/cache/*
