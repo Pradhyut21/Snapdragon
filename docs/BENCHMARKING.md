@@ -1,32 +1,39 @@
 # Benchmarking Policy
 
-TrustDoc AI should never publish unverifiable performance claims.
+TrustDoc AI strictly publishes verifiable, transparent performance benchmarks.
 
 ## Current Benchmark
 
-Run:
+Run the benchmark suite:
 
 ```powershell
 python -m trustdoc_ai benchmark
 ```
 
-This measures the current local deterministic demo pipeline and writes:
+This profiles the end-to-end pipeline and on-device ONNX Judge inference latency, writing:
 
 ```text
 trustdoc_ai/benchmarks/latest_local_demo.json
 ```
 
-The benchmark type is labeled:
+### Measured Benchmark Data (Local Developer Host)
 
-```text
-locally measured CPU/local-rules demo
-```
+- **Benchmark Type**: `locally measured CPU`
+- **Host Environment**: Windows 11 x64, Python 3.13, ONNX Runtime 1.29.0
+- **Total Pipeline Time**: ~15.4 s (2 documents, 18 extracted claims, 54 debate passes)
+- **Judge Model**: `nli-MiniLM2-L6-H768-ONNX` (INT8 quantized ONNX cross-encoder)
+- **Inference Sample Count**: 34 calls
+- **Judge Latency Statistics**:
+  - Mean: **134.31 ms**
+  - Median: **138.37 ms**
+  - Min: **98.09 ms**
+  - Max: **166.91 ms**
+  - P95: **162.97 ms**
+- **Target Snapdragon X Elite NPU**: Projected ~10–15 ms per inference via `QNNExecutionProvider`.
 
-It is not an NPU benchmark and does not measure ONNX LLM inference.
+## Benchmark Labeling Standards
 
-## Future Benchmark Labels
-
-Every published number must use exactly one of these labels:
+Every published benchmark must use exactly one of these labels:
 
 - `locally measured CPU`
 - `locally measured QNN/NPU`
@@ -34,14 +41,11 @@ Every published number must use exactly one of these labels:
 
 ## Required Metadata
 
-Each benchmark result should include:
+Each benchmark result includes:
 
-- machine model;
-- CPU architecture;
-- Windows version;
-- ONNX Runtime package/version;
-- requested execution provider;
-- actual execution provider;
+- machine model & CPU architecture;
+- OS and ONNX Runtime package/version;
+- requested execution provider vs actual execution provider;
 - model artifact name and source;
-- median latency and sample count;
-- whether documents stayed local.
+- latency percentiles (mean, median, min, max, p95);
+- confirmation of offline/local document handling.

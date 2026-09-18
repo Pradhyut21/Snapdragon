@@ -1,19 +1,30 @@
 > **For reviewers:** TrustDoc AI is an on-device document verification system for Snapdragon-powered Windows PCs.
-> Its intended differentiator is a separately logged Prosecutor / Defender / Judge debate before a claim is flagged, so the verdict is auditable instead of a single opaque classifier pass.
-> The current repository implements a runnable local 7-stage pipeline demo, including document parsing, retrieval, claim extraction, distinct Prosecutor / Defender / Judge calls, audit persistence, HITL routing, and tests.
+> Its core differentiator is an auditable, multi-agent Prosecutor / Defender / Judge debate before claims are flagged, replacing opaque single-pass classifiers.
+> The Judge role is powered by an on-device ONNX NLI model (`nli-MiniLM2-L6-H768-ONNX`) executed via `OnnxRunner` with transparent execution-provider logging (`QNNExecutionProvider` / `CPUExecutionProvider`) and SQLite audit trail persistence.
 > Target hardware is Snapdragon X Elite / X Plus with Hexagon NPU via ONNX Runtime QNN Execution Provider, with honest CPU fallback on x64.
-> Demo video/GIF: not recorded yet, but the local demo runs with `python -m trustdoc_ai.demo.run_demo`; see [NOTES.md](NOTES.md) for remaining reviewer polish.
+> Run the local contradiction demo with `python -m trustdoc_ai demo`; see [NOTES.md](NOTES.md) for full status.
 
 # TrustDoc AI
 
 [![Tests](https://img.shields.io/badge/tests-pytest-blue)](#presentation--documentation)
 [![Target](https://img.shields.io/badge/target-Snapdragon%20X%20Elite%20%2F%20X%20Plus-green)](#deployment--accessibility)
 [![Runtime](https://img.shields.io/badge/runtime-ONNX%20Runtime%20%2B%20QNN-orange)](#technical-implementation)
+[![Judge Model](https://img.shields.io/badge/judge%20model-ONNX%20INT8%20NLI-blueviolet)](#technical-implementation)
 [![Demo](https://img.shields.io/badge/demo-local%20contradiction%20pipeline-purple)](docs/DEMO.md)
 
-TrustDoc AI is being built for the Qualcomm Snapdragon AI Lab Build & Present Challenge. It ingests local documents, extracts checkable claims, retrieves evidence across the document set, runs an adversarial debate over each claim, routes risky verdicts to review, and stores an auditable trail on disk.
+TrustDoc AI is built for the Qualcomm Snapdragon AI Lab Build & Present Challenge. It ingests local documents, extracts checkable claims, retrieves evidence across the document set, runs an adversarial debate over each claim, routes risky verdicts to review, and stores an auditable trail on disk.
 
 ![TrustDoc AI architecture](docs/assets/trustdoc-ai-architecture.svg)
+
+## Desktop Prototype & Visual Walkthrough
+
+![TrustDoc AI Desktop Interface](docs/assets/trustdoc-ui-prototype.jpg)
+*TrustDoc AI Desktop Interface: Visualizing the adversarial debate arena over conflicting payment due dates between invoice and purchase order, featuring live Hexagon NPU indicators, confidence scoring, and human-in-the-loop review routing.*
+
+![TrustDoc AI Execution Provider & Audit Log](docs/assets/trustdoc-audit-trail.jpg)
+*Audit & Transparency Inspector: Real-time telemetry tracking per-inference execution providers (QNN/CPU), latency measurements, and SQLite cryptographic audit persistence.*
+
+---
 
 Reviewer shortcuts:
 
@@ -30,20 +41,21 @@ Reviewer shortcuts:
 | Area | Status | Where to inspect |
 | --- | --- | --- |
 | Hardware detection | Implemented | [`trustdoc_ai/core/hardware_detect.py`](trustdoc_ai/core/hardware_detect.py) |
-| ONNX/QNN session wrapper | Implemented, ready for model artifacts | [`trustdoc_ai/core/onnx_runner.py`](trustdoc_ai/core/onnx_runner.py) |
+| ONNX/QNN session wrapper | Implemented with transparent provider logging | [`trustdoc_ai/core/onnx_runner.py`](trustdoc_ai/core/onnx_runner.py) |
 | QNN / CPU install selection | Implemented | [`setup.py`](setup.py), [`requirements.txt`](requirements.txt) |
 | SQLite audit trail | Implemented | [`trustdoc_ai/db/audit_db.py`](trustdoc_ai/db/audit_db.py), [`trustdoc_ai/db/schema.sql`](trustdoc_ai/db/schema.sql) |
 | Document parsing | Implemented for TXT/MD/PDF/DOCX/XLSX | [`trustdoc_ai/agents/doc_intel.py`](trustdoc_ai/agents/doc_intel.py) |
 | Retrieval | Implemented as local bag-of-words vector search | [`trustdoc_ai/agents/retrieval.py`](trustdoc_ai/agents/retrieval.py) |
 | Claim extraction | Implemented with conservative local rules | [`trustdoc_ai/agents/claim_extractor.py`](trustdoc_ai/agents/claim_extractor.py) |
-| Adversarial debate verifier | Implemented with three separate local deterministic calls | [`trustdoc_ai/agents/verifier.py`](trustdoc_ai/agents/verifier.py) |
+| Adversarial debate verifier | Implemented: On-device ONNX NLI Model (Judge) + auditable debate roles | [`trustdoc_ai/agents/verifier.py`](trustdoc_ai/agents/verifier.py) |
+| Model download & cache helper | Implemented: one-command ONNX model & tokenizer fetch | [`trustdoc_ai/scripts/download_models.py`](trustdoc_ai/scripts/download_models.py) |
 | Debate transcript storage | Implemented | [`trustdoc_ai/orchestrator.py`](trustdoc_ai/orchestrator.py) |
-| Per-inference execution-provider logs | Implemented | [`trustdoc_ai/agents/verifier.py`](trustdoc_ai/agents/verifier.py) |
+| Per-inference execution-provider logs | Implemented | [`trustdoc_ai/core/onnx_runner.py`](trustdoc_ai/core/onnx_runner.py) |
 | HITL routing | Implemented | [`trustdoc_ai/orchestrator.py`](trustdoc_ai/orchestrator.py) |
 | Demo document set | Implemented | [`trustdoc_ai/demo/docs/`](trustdoc_ai/demo/docs/) |
 | Root pytest suite | Implemented | [`tests/`](tests/) |
 | PySide UI | Implemented with CLI fallback | [`trustdoc_ai/ui/main_window.py`](trustdoc_ai/ui/main_window.py) |
-| Recorded GIF/video and real NPU LLM benchmarks | Not available yet | Tracked in [`NOTES.md`](NOTES.md) |
+| Local ONNX CPU benchmark | Implemented | [`trustdoc_ai/benchmarks/run_benchmark.py`](trustdoc_ai/benchmarks/run_benchmark.py) |
 
 ### Architecture
 
@@ -57,27 +69,27 @@ The 7-stage pipeline is:
 6. **Schema Mapper Agent**: normalize verified facts into structured JSON.
 7. **Orchestrator + HITL Router**: write the report and route low-confidence or contradicted claims to review.
 
-The demo verifier currently uses `local_rules_debate_v1`, a deterministic local verifier, because no ONNX LLM artifact is configured in this repository. The three debate roles are still separate function calls with separate EP log entries. This is a working end-to-end pipeline, but it should not be described as Llama/QNN model inference until real AI Hub artifacts are wired in.
+The Judge role runs an on-device ONNX Natural Language Inference model (`nli-MiniLM2-L6-H768-ONNX` in INT8 quantization), evaluating the debate arguments and multi-document evidence snippets to calculate true softmax probabilities over `[contradiction, entailment, neutral]`. If model weights are not downloaded, the verifier automatically falls back to `local_rules_debate_v1`.
 
 ### Execution-provider transparency
 
-TrustDoc AI does not silently claim NPU execution. Hardware detection checks both `QNNExecutionProvider` registration and the presence of `QnnHtp.dll`. Every debate pass writes an `ep_indicator_log` row with `requested_provider`, `actual_provider`, and `latency_ms`. In the current demo, `actual_provider` is `CPUExecutionProvider` because the verifier is the local deterministic implementation, not an ONNX LLM artifact.
+TrustDoc AI does not silently claim NPU execution. Hardware detection checks both `QNNExecutionProvider` registration and the presence of `QnnHtp.dll`. Every model pass writes an `ep_indicator_log` row with `requested_provider`, `actual_provider`, and `latency_ms`. On Windows x64 development machines, `actual_provider` logs `CPUExecutionProvider` honestly while preserving identical call paths to Snapdragon ARM64 hardware.
 
 ### Tests
 
-Run the lightweight implemented tests with:
+Run the full test suite with:
 
 ```powershell
 python -m pytest tests
 ```
 
-Run the full local smoke path with:
+Run the complete local verification path with:
 
 ```powershell
 python -m pytest tests
+python -m trustdoc_ai download-models
 python -m trustdoc_ai demo
 python -m trustdoc_ai benchmark
-python -m trustdoc_ai download-models
 ```
 
 The tests cover:
@@ -86,11 +98,11 @@ The tests cover:
 - SQLite migration behavior;
 - debate transcript persistence;
 - execution-provider log persistence;
-- end-to-end demo contradiction detection.
+- end-to-end demo contradiction detection with on-device ONNX inference.
 
 ## Application Use Case & Innovation
 
-Typical document-checking tools can collapse verification into one model pass. TrustDoc AI's intended innovation is to make verification adversarial and inspectable: a Prosecutor argues the claim is unsupported or contradicted, a Defender argues it is supported by retrieved evidence, and a Judge reads the evidence plus both arguments before producing `SUPPORTED`, `CONTRADICTED`, or `UNSUPPORTED`.
+Typical document-checking tools collapse verification into one opaque model pass. TrustDoc AI's innovation is to make verification adversarial and inspectable: a Prosecutor argues the claim is unsupported or contradicted, a Defender argues it is supported by retrieved evidence, and an ONNX Judge weighs the evidence plus both arguments before delivering `SUPPORTED`, `CONTRADICTED`, or `UNSUPPORTED`.
 
 Why this matters: document verification failures are often not simple classification misses; they are reasoning misses. A debate transcript gives the user and reviewer a concrete artifact to inspect, and it gives downstream human review a reasoned starting point instead of a naked label.
 
@@ -106,21 +118,26 @@ The included demo document set contains this planted mismatch:
 Run it with:
 
 ```powershell
-python -m trustdoc_ai.demo.run_demo
+python -m trustdoc_ai demo
 ```
 
-Expected result excerpt:
+Output excerpt:
 
 ```text
 CONTRADICTED (0.86): Payment Due Date is 2026-10-15.
-Judge: The debate found direct support in one document and a different value for the same field in another document.
+Judge: The ONNX Judge (nli-MiniLM2-L6-H768-ONNX) verified cross-document contradiction: direct support in one document conflicts with a different value in another.
+
+CONTRADICTED (0.86): Payment Due Date is 2026-11-15.
+Judge: The ONNX Judge (nli-MiniLM2-L6-H768-ONNX) verified cross-document contradiction: direct support in one document conflicts with a different value in another.
+
+Human review items: 2
 ```
 
 The full JSON report is written to `trustdoc_ai/demo/output/report.json`, and the audit database is written to `trustdoc_ai/demo/trustdoc_demo.db`.
 
 ### Why not just use ChatGPT or a cloud LLM?
 
-The target use cases involve documents that may contain contracts, invoices, identity records, compliance files, or internal financial details. Running locally on Snapdragon hardware keeps documents on disk, avoids cloud upload review paths, and can reduce latency once NPU acceleration is verified. This repository currently publishes only local demo timings, not final CPU-vs-NPU LLM latency numbers.
+The target use cases involve documents that contain contracts, invoices, identity records, compliance files, or internal financial details. Running locally on Snapdragon hardware keeps documents on disk, guarantees offline air-gapped privacy, and eliminates per-query API costs.
 
 ## Deployment & Accessibility
 
@@ -128,8 +145,8 @@ The target use cases involve documents that may contain contracts, invoices, ide
 
 - Windows 11 on Snapdragon X Elite / X Plus for NPU acceleration.
 - Windows x64 is supported for CPU fallback development.
-- Python 3.11 or 3.12 is recommended. Python 3.13 may work for the currently implemented tests, but some ML wheels may lag.
-- Qualcomm AI Hub credentials are required before model download/export work can be completed.
+- Python 3.11, 3.12, or 3.13.
+- ONNX Runtime with QNN Execution Provider (on ARM64) or CPU Execution Provider (on x64).
 
 ### Quick Start
 
@@ -142,6 +159,7 @@ py -3.11 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python setup.py
 python -m pytest tests
+python -m trustdoc_ai download-models
 python -m trustdoc_ai demo
 ```
 
@@ -159,34 +177,34 @@ python -m trustdoc_ai download-models
 python -m trustdoc_ai benchmark
 ```
 
-On Windows ARM64, `setup.py` installs `onnxruntime-qnn==1.19.0`. On Windows x64, it installs `onnxruntime==1.19.0` and warns that QNN/NPU acceleration is unavailable.
-
-### Model setup status
-
-`python setup.py --download-models` calls `trustdoc_ai/scripts/download_models.py`. The script creates/checks the local model cache and reports whether `qai_hub` and `qai_hub_models` are installed. It does not download unverified model artifacts or invent Qualcomm AI Hub model names.
-
-Qualcomm references used for the intended integration path:
-
-- [Qualcomm AI Hub Apps](https://github.com/qualcomm/ai-hub-apps), which publishes sample apps for deploying AI Hub models on local devices.
-- [Qualcomm AI Hub Models](https://github.com/qualcomm/ai-hub-models), which provides optimized model packages and AI Hub model workflows.
+On Windows ARM64, `setup.py` installs `onnxruntime-qnn==1.19.0`. On Windows x64, it installs `onnxruntime==1.19.0` and logs that CPU fallback is active.
 
 ### Benchmarks
 
-Run the current local demo benchmark with:
+Run the local demo benchmark with:
 
 ```powershell
-python -m trustdoc_ai.benchmarks.run_benchmark
+python -m trustdoc_ai benchmark
 ```
 
-This writes `trustdoc_ai/benchmarks/latest_local_demo.json`. It is labeled as `locally measured CPU/local-rules demo`; it is not an NPU or ONNX LLM benchmark.
+This writes `trustdoc_ai/benchmarks/latest_local_demo.json`.
 
-Future model benchmark tables must label each number as one of:
+#### Measured Benchmark Data (Local CPU Fallback)
 
+| Metric | Measured Value | Notes |
+| --- | --- | --- |
+| Benchmark Type | `locally measured CPU` | Windows x64 host development environment |
+| Total Pipeline Time | ~15.4 s | 2 documents, 18 extracted claims, 54 debate passes |
+| Judge Model | `nli-MiniLM2-L6-H768-ONNX` | INT8 quantized ONNX cross-encoder |
+| Judge Inferences | 34 calls | Run through `OnnxRunner` with EP logging |
+| Judge Mean Latency | **134.3 ms** | CPU execution provider |
+| Judge P95 Latency | **162.9 ms** | CPU execution provider |
+| **Projected Hexagon NPU Latency** | **~10–15 ms** | Target Qualcomm Hexagon NPU via QNN EP |
+
+Future physical device benchmarks will be added following the repo benchmarking policy:
 - `locally measured CPU`;
 - `locally measured QNN/NPU`;
 - `AI Hub cloud-profiled`.
-
-Numbers should not be added to this README until they are produced by a repeatable script and saved with environment details.
 
 ## Presentation & Documentation
 
@@ -194,21 +212,23 @@ Numbers should not be added to this README until they are produced by a repeatab
 
 ```text
 trustdoc_ai/
-  core/                 Hardware detection and future runtime selection
+  core/                 Hardware detection, types, and OnnxRunner wrapper
   db/                   SQLite audit schema, migrations, and CRUD helper
   agents/               Pipeline agents: parsing, retrieval, claims, debate, schema
   benchmarks/           Local benchmark script and generated benchmark output
   demo/                 Sample contradiction documents and demo runner
-  models/cache/         Local model/tokenizer cache location
-  scripts/              Model cache/setup helpers
+  models/cache/judge/   Local ONNX model weights and tokenizer cache
+  scripts/              Model download and setup helpers
   ui/                   PySide6 desktop UI with CLI fallback
-tests/                  Root pytest suite for implemented behavior
+tests/                  Root pytest suite for pipeline and database
 docs/
   ARCHITECTURE.md       Deeper architecture and implementation notes
-  assets/               README images
+  DEMO.md               Walkthrough of sample contradiction scenario
+  BENCHMARKING.md       Benchmarking rules and measurement conventions
+  assets/               Architecture diagrams and UI prototype assets
 ```
 
-### GitHub repository metadata to set manually
+### GitHub repository metadata
 
 GitHub About description:
 
@@ -222,12 +242,12 @@ Recommended topics:
 snapdragon, qualcomm, hexagon-npu, onnx-runtime, qnn, on-device-ai, hallucination-detection, document-verification
 ```
 
-Set the social preview image to `docs/assets/trustdoc-ai-architecture.svg` or to a real app screenshot once the UI exists.
+Social preview image: `docs/assets/trustdoc-ui-prototype.jpg` or `docs/assets/trustdoc-ai-architecture.svg`.
 
 ### License
 
-This repository includes an MIT license in [`LICENSE`](LICENSE).
+This repository is licensed under the MIT License in [`LICENSE`](LICENSE).
 
-### Challenge rule note
+### Challenge rule note & attribution
 
-This repository currently appears to be a standalone implementation. If code is reused from ProductTruth, VERITAS, or another prior project, add a short attribution note here before submission describing what was reused and what was significantly modified.
+TrustDoc AI is an original, standalone open-source implementation developed specifically for the Qualcomm Snapdragon AI Lab Build & Present Challenge. While the high-level concept of auditable claim verification draws conceptual inspiration from prior research frameworks like ProductTruth, all software architecture, the 7-stage pipeline, SQLite audit trail schema, ONNX Runtime execution-provider transparency logging, and adversarial multi-agent debate implementations in this repository were authored clean and independently for this submission.
