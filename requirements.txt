@@ -1,0 +1,46 @@
+# TrustDoc AI — pinned dependencies
+# Target: Snapdragon X Elite / X Plus (ARM64, Windows on Snapdragon)
+#
+# NOTE: onnxruntime-qnn and onnxruntime are intentionally EXCLUDED here.
+# The correct ONNX Runtime variant is installed by setup.py based on
+# hardware detection (ARM64 → onnxruntime-qnn==1.19.0,
+#                     AMD64  → onnxruntime==1.19.0).
+#
+# This file covers all other runtime, ML, UI, and test dependencies.
+
+# ── Document extraction ────────────────────────────────────────────────────
+pdfplumber==0.11.4          # PDF text + table extraction
+python-docx==1.1.1          # DOCX paragraph / table extraction
+openpyxl==3.1.5             # XLSX sheet / cell extraction
+
+# ── Tokenisation & chunking ────────────────────────────────────────────────
+tiktoken==0.7.0             # BPE tokeniser (cl100k_base encoder for chunking)
+
+# ── ML / model loading ────────────────────────────────────────────────────
+transformers==4.47.0        # AutoTokenizer for Llama-3 and MiniLM (offline)
+sentence-transformers==3.3.1  # MiniLM-v2 tokenizer wrapper / utilities
+
+# ── Embedding & vector index ───────────────────────────────────────────────
+numpy==2.1.3                # Flat cosine-similarity vector index (numpy backend)
+
+# ── Image processing ──────────────────────────────────────────────────────
+Pillow==10.4.0              # PIL image tensors for FastVLM scanned-page inference
+
+# ── Model registry / Hub clients ──────────────────────────────────────────
+huggingface-hub==0.26.5     # Tokenizer download / offline cache management
+qai-hub-models==0.21.0      # Qualcomm AI Hub model export & compile helpers
+qai-hub==0.27.0             # Qualcomm AI Hub Python SDK (job submission / polling)
+
+# ── Optional vector backend ───────────────────────────────────────────────
+sqlite-vec==0.1.6           # SQLite-native vector search (enabled via TRUSTDOC_VECTOR_BACKEND=sqlite-vec)
+
+# ── Desktop UI ────────────────────────────────────────────────────────────
+PySide6==6.8.1              # Qt 6.8 Python bindings (QMainWindow, QThread, signals)
+
+# ── JSON schema validation ────────────────────────────────────────────────
+jsonschema==4.23.0          # Schema validation for document result records
+
+# ── Testing ───────────────────────────────────────────────────────────────
+pytest==8.3.4               # Test runner
+pytest-qt==4.4.0            # Qt widget testing helpers (QTest / pytest integration)
+hypothesis==6.119.4         # Property-based testing framework

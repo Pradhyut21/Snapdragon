@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "trustdoc-ai"
+version = "0.1.0"
+description = "On-device document verification with auditable adversarial debate for Snapdragon PCs."
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
+license = { text = "MIT" }
+authors = [
+  { name = "TrustDoc AI contributors" }
+]
+keywords = [
+  "snapdragon",
+  "qualcomm",
+  "hexagon-npu",
+  "onnx-runtime",
+  "qnn",
+  "on-device-ai",
+  "document-verification",
+  "hallucination-detection"
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Win32 (MS Windows)",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence"
+]
+
+[project.scripts]
+trustdoc-ai = "trustdoc_ai.cli:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

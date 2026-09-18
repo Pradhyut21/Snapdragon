@@ -1,0 +1,1 @@
+-- Placeholder — migrations are implemented in Task 2.2
