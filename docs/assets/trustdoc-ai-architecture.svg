@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">TrustDoc AI seven-stage architecture</title>
+  <desc id="desc">A pipeline diagram showing local document intake, seven agents, QNN execution logging, SQLite audit storage, and human review routing.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f7f8fb; }
+      .band { fill: #ffffff; stroke: #d7dce5; stroke-width: 2; }
+      .box { fill: #ffffff; stroke: #1f2937; stroke-width: 2; rx: 8; }
+      .npu { fill: #e9f7ef; stroke: #16803a; }
+      .store { fill: #edf3ff; stroke: #2859b8; }
+      .review { fill: #fff4df; stroke: #a15c00; }
+      .text { font-family: Arial, Helvetica, sans-serif; fill: #111827; }
+      .small { font-size: 18px; }
+      .label { font-size: 20px; font-weight: 700; }
+      .title { font-size: 34px; font-weight: 700; }
+      .arrow { stroke: #344054; stroke-width: 3; fill: none; marker-end: url(#arrowhead); }
+      .dash { stroke: #6b7280; stroke-width: 3; fill: none; stroke-dasharray: 8 8; marker-end: url(#arrowhead); }
+    </style>
+    <marker id="arrowhead" markerWidth="12" markerHeight="8" refX="10" refY="4" orient="auto">
+      <path d="M0,0 L12,4 L0,8 Z" fill="#344054"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" width="1280" height="720"/>
+  <text class="text title" x="48" y="58">TrustDoc AI: Local Document Verification on Snapdragon PCs</text>
+  <text class="text small" x="48" y="88">Target design: auditable adversarial debate plus transparent QNN/NPU execution logging</text>
+
+  <rect class="band" x="36" y="120" width="1208" height="390" rx="8"/>
+  <text class="text label" x="58" y="154">Seven-stage local pipeline</text>
+
+  <rect class="box" x="58" y="190" width="145" height="100"/>
+  <text class="text label" x="78" y="226">1 Doc-Intel</text>
+  <text class="text small" x="78" y="254">PDF / image</text>
+  <text class="text small" x="78" y="278">DOCX / XLSX</text>
+
+  <rect class="box" x="230" y="190" width="145" height="100"/>
+  <text class="text label" x="252" y="226">2 Vision</text>
+  <text class="text small" x="252" y="254">Tables, stamps,</text>
+  <text class="text small" x="252" y="278">signatures</text>
+
+  <rect class="box" x="402" y="190" width="145" height="100"/>
+  <text class="text label" x="422" y="226">3 Retrieval</text>
+  <text class="text small" x="422" y="254">Local chunks +</text>
+  <text class="text small" x="422" y="278">vector index</text>
+
+  <rect class="box" x="574" y="190" width="145" height="100"/>
+  <text class="text label" x="594" y="226">4 Claims</text>
+  <text class="text small" x="594" y="254">Discrete facts</text>
+  <text class="text small" x="594" y="278">to verify</text>
+
+  <rect class="box npu" x="746" y="166" width="275" height="148"/>
+  <text class="text label" x="766" y="204">5 Debate Verifier</text>
+  <text class="text small" x="766" y="234">A. Prosecutor call</text>
+  <text class="text small" x="766" y="262">B. Defender call</text>
+  <text class="text small" x="766" y="290">C. Judge call</text>
+
+  <rect class="box" x="1048" y="190" width="145" height="100"/>
+  <text class="text label" x="1068" y="226">6 Schema</text>
+  <text class="text small" x="1068" y="254">Validated JSON</text>
+  <text class="text small" x="1068" y="278">record</text>
+
+  <rect class="box" x="516" y="360" width="250" height="92"/>
+  <text class="text label" x="536" y="396">7 Orchestrator</text>
+  <text class="text small" x="536" y="426">Report + HITL routing</text>
+
+  <path class="arrow" d="M203 240 H224"/>
+  <path class="arrow" d="M375 240 H396"/>
+  <path class="arrow" d="M547 240 H568"/>
+  <path class="arrow" d="M719 240 H740"/>
+  <path class="arrow" d="M1021 240 H1042"/>
+  <path class="arrow" d="M1120 292 C1120 386 870 406 772 406"/>
+  <path class="arrow" d="M642 360 V322 C642 300 688 286 740 276"/>
+
+  <rect class="box store" x="80" y="558" width="316" height="104"/>
+  <text class="text label" x="104" y="596">Local SQLite Audit Trail</text>
+  <text class="text small" x="104" y="624">documents, claims, debate transcripts,</text>
+  <text class="text small" x="104" y="650">EP logs, verdicts, human review state</text>
+
+  <rect class="box npu" x="482" y="558" width="316" height="104"/>
+  <text class="text label" x="506" y="596">ONNX Runtime Providers</text>
+  <text class="text small" x="506" y="624">QNNExecutionProvider when verified</text>
+  <text class="text small" x="506" y="650">CPUExecutionProvider fallback shown</text>
+
+  <rect class="box review" x="884" y="558" width="316" height="104"/>
+  <text class="text label" x="908" y="596">Human Review Queue</text>
+  <text class="text small" x="908" y="624">Low confidence or contradicted claims</text>
+  <text class="text small" x="908" y="650">remain local and auditable</text>
+
+  <path class="dash" d="M594 452 C470 500 344 532 238 558"/>
+  <path class="dash" d="M884 314 C830 404 736 498 662 558"/>
+  <path class="dash" d="M766 416 C852 474 958 518 1028 558"/>
+</svg>
