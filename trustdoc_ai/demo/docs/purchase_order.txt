@@ -1,0 +1,9 @@
+Document Type: Purchase Order
+Vendor: Northstar Components
+Buyer: HP Prototype Lab
+Purchase Order: PO-8842
+Invoice Amount: $12,450.00
+Payment Due Date: 2026-11-15
+Warranty Term: 24 months
+Approval Status: Approved
+Authorized Signer: Mira Patel
