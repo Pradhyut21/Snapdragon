@@ -91,6 +91,12 @@ class TrustDocOrchestrator:
 
             self.db.update_run(run_id, "COMPLETE", completed_at=utc_now(), claim_count=len(claims))
             hitl = self.db.get_hitl_queue(run_id=run_id)
+            judge_model_active = verifier.judge_model.is_available
+            inference_note = (
+                f"Judge role executed on-device via ONNX Runtime ({verifier.judge_model.model_name}) with transparent EP logging."
+                if judge_model_active
+                else "Demo verifier used local deterministic rules fallback."
+            )
             report = {
                 "run_id": run_id,
                 "created_at": utc_now(),
@@ -100,7 +106,8 @@ class TrustDocOrchestrator:
                     "ort_version": hardware.ort_version,
                     "qnn_ep_available": hardware.qnn_ep_available,
                     "qnn_htp_dll_path": hardware.qnn_htp_dll_path,
-                    "inference_note": "Demo verifier used local deterministic rules; ONNX LLM artifact is not configured.",
+                    "judge_model": verifier.judge_model.model_name if judge_model_active else "local_rules_debate_v1",
+                    "inference_note": inference_note,
                 },
                 "documents": [document.__dict__ for document in documents],
                 "verdicts": verdicts,

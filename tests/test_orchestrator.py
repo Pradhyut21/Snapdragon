@@ -25,5 +25,7 @@ def test_demo_pipeline_finds_planted_contradiction(tmp_path):
 
     report = json.loads(report_path.read_text(encoding="utf-8"))
     assert report["run_id"] == result.run_id
-    assert report["provider"]["inference_note"].startswith("Demo verifier")
+    note = report["provider"]["inference_note"]
+    assert "Judge role executed on-device" in note or note.startswith("Demo verifier")
+    assert report["provider"]["judge_model"] in ("nli-MiniLM2-L6-H768-ONNX", "local_rules_debate_v1")
     assert len(report["ep_log_recent"]) >= 6
