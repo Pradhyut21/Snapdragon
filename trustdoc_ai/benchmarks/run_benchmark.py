@@ -38,14 +38,15 @@ def main() -> None:
         }
 
     output = {
-        "benchmark_type": "locally measured CPU (x64 developer environment)",
-        "target_hardware": "Snapdragon X Elite / X Plus (Hexagon NPU via QNN EP)",
+        "benchmark_type": "locally measured CPU",
+        "host_environment": "Windows 11 x64 (CPU execution fallback)",
+        "deployment_target": "Snapdragon X Elite / X Plus (Hexagon NPU via QNN EP)",
         "pipeline_total_elapsed_ms": total_elapsed_ms,
         "judge_onnx_inference": judge_stats,
         "note": (
-            "Measured with active ONNX Runtime Judge model (nli-MiniLM2-L6-H768-ONNX). "
-            "Transparent provider logging verified fallback to CPUExecutionProvider on x64 host. "
-            "Snapdragon ARM64 targets utilize QNNExecutionProvider for NPU acceleration."
+            "Measured with on-device ONNX Runtime Judge model (nli-MiniLM2-L6-H768-ONNX, Hugging Face). "
+            "Transparent provider logging verified fallback to CPUExecutionProvider on x64 development host. "
+            "Snapdragon NPU numbers will be appended once tested on physical ARM64 hardware or AI Hub cloud profiling."
         ),
     }
     path = Path("trustdoc_ai/benchmarks/latest_local_demo.json")

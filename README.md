@@ -179,6 +179,10 @@ python -m trustdoc_ai benchmark
 
 On Windows ARM64, `setup.py` installs `onnxruntime-qnn==1.19.0`. On Windows x64, it installs `onnxruntime==1.19.0` and logs that CPU fallback is active.
 
+### Model provenance
+
+The current on-device Judge model is `cross-encoder/nli-MiniLM2-L6-H768`, sourced from Hugging Face and executed locally using quantized INT8 ONNX weights via `OnnxRunner`. It is intentionally an NLI cross-encoder suited for deterministic claim entailment/contradiction tasks. It is **not** sourced from the Qualcomm AI Hub model catalog; Qualcomm AI Hub integration (`qai_hub` / `qai_hub_models`) is maintained as the compile/export pathway for deploying AI Hub models to the Hexagon NPU.
+
 ### Benchmarks
 
 Run the local demo benchmark with:
@@ -195,16 +199,13 @@ This writes `trustdoc_ai/benchmarks/latest_local_demo.json`.
 | --- | --- | --- |
 | Benchmark Type | `locally measured CPU` | Windows x64 host development environment |
 | Total Pipeline Time | ~15.4 s | 2 documents, 18 extracted claims, 54 debate passes |
-| Judge Model | `nli-MiniLM2-L6-H768-ONNX` | INT8 quantized ONNX cross-encoder |
-| Judge Inferences | 34 calls | Run through `OnnxRunner` with EP logging |
+| Judge Model | `nli-MiniLM2-L6-H768-ONNX` | INT8 quantized ONNX cross-encoder (Hugging Face) |
+| Judge Inferences | 34 calls | Run through `OnnxRunner` with transparent EP logging |
 | Judge Mean Latency | **134.3 ms** | CPU execution provider |
+| Judge Median Latency | **138.4 ms** | CPU execution provider |
 | Judge P95 Latency | **162.9 ms** | CPU execution provider |
-| **Projected Hexagon NPU Latency** | **~10–15 ms** | Target Qualcomm Hexagon NPU via QNN EP |
 
-Future physical device benchmarks will be added following the repo benchmarking policy:
-- `locally measured CPU`;
-- `locally measured QNN/NPU`;
-- `AI Hub cloud-profiled`.
+Per the project benchmarking policy, only verified measurements are included above. Real physical Snapdragon X Elite / Hexagon NPU numbers will be added once physical device testing or AI Hub cloud profiling is run, labeled strictly as `locally measured QNN/NPU` or `AI Hub cloud-profiled`.
 
 ## Presentation & Documentation
 

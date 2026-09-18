@@ -29,7 +29,8 @@ trustdoc_ai/benchmarks/latest_local_demo.json
   - Min: **98.09 ms**
   - Max: **166.91 ms**
   - P95: **162.97 ms**
-- **Target Snapdragon X Elite NPU**: Projected ~10–15 ms per inference via `QNNExecutionProvider`.
+
+In accordance with this policy, no speculative numbers are published in the results. Real NPU figures will be added upon physical hardware testing or AI Hub cloud profiling.
 
 ## Benchmark Labeling Standards
 

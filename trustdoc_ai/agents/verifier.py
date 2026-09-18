@@ -80,9 +80,10 @@ class LocalDebateModel:
 class OnnxJudgeModel:
     """ONNX Runtime NLI verifier for the Adversarial Judge role.
 
-    Runs inference via OnnxRunner to transparently record provider indicators
-    (QNNExecutionProvider / CPUExecutionProvider) and calculate true softmax
-    probabilities over the debate premise and claim hypothesis.
+    Sourced from Hugging Face (`cross-encoder/nli-MiniLM2-L6-H768`) as a quantized
+    INT8 ONNX cross-encoder. Runs on-device inference via OnnxRunner to transparently
+    record provider indicators (QNNExecutionProvider / CPUExecutionProvider) and
+    calculate true softmax probabilities over the debate premise and claim hypothesis.
     """
 
     model_name = "nli-MiniLM2-L6-H768-ONNX"
